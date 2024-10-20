@@ -1,37 +1,48 @@
+// Uncomment the code below and write your tests
 import { simpleCalculator, Action } from './index';
 
 const testCases = [
-  //Add
   { a: 1, b: 2, action: Action.Add, expected: 3 },
   { a: 2, b: 2, action: Action.Add, expected: 4 },
   { a: 3, b: 2, action: Action.Add, expected: 5 },
-  //Subtract
-  { a: 5, b: 2, action: Action.Subtract, expected: 3 },
-  { a: -10, b: 10, action: Action.Subtract, expected: -20 },
-  { a: 0, b: 0, action: Action.Subtract, expected: 0 },
-  //Divide
-  { a: 10, b: 2, action: Action.Divide, expected: 5 },
-  { a: 9, b: 2, action: Action.Divide, expected: 4.5 },
-  { a: 7, b: 1, action: Action.Divide, expected: 7 },
-  //Multiply
-  { a: 2, b: 7, action: Action.Multiply, expected: 14 },
-  { a: 0, b: 5, action: Action.Multiply, expected: 0 },
-  { a: 4, b: 3, action: Action.Multiply, expected: 12 },
-  //Exponentiate
+  { a: 1, b: 2, action: Action.Subtract, expected: -1 },
+  { a: 2, b: 2, action: Action.Subtract, expected: 0 },
+  { a: 3, b: 2, action: Action.Subtract, expected: 1 },
+  { a: 1, b: 2, action: Action.Multiply, expected: 2 },
+  { a: 2, b: 2, action: Action.Multiply, expected: 4 },
+  { a: 3, b: 2, action: Action.Multiply, expected: 6 },
+  { a: 15, b: 3, action: Action.Divide, expected: 5 },
+  { a: 18, b: 2, action: Action.Divide, expected: 9 },
+  { a: 28, b: 4, action: Action.Divide, expected: 7 },
   { a: 2, b: 3, action: Action.Exponentiate, expected: 8 },
-  { a: 3, b: 3, action: Action.Exponentiate, expected: 27 },
-  { a: 1, b: 1, action: Action.Exponentiate, expected: 1 },
-  //Invalid
-  { a: 0, b: 0, action: 'wrong', expected: null },
-  { a: 'wrong', b: 0, action: Action.Add, expected: null },
-  { a: 0, b: 'wrong', action: Action.Multiply, expected: null },
+  { a: 3, b: 2, action: Action.Exponentiate, expected: 9 },
+  { a: 4, b: 2, action: Action.Exponentiate, expected: 16 },
+  { a: '28', b: 4, action: Action.Divide, expected: null },
+  { a: 28, b: 4, action: '&', expected: null },
+];
+
+const testCasesNull = [
+  { a: '1', b: 2, action: Action.Add, expected: null },
+  { a: 2, b: '2', action: Action.Add, expected: null },
+  { a: '3', b: '2', action: Action.Add, expected: null },
+  { a: 3, b: 2, action: '&', expected: null },
+  { a: '3', b: 2, action: '&', expected: null },
+  { a: '3', b: '2', action: '&', expected: null },
 ];
 
 describe('simpleCalculator', () => {
-  test.each(testCases)(
-    'should yield the accurate outcome for %p',
+  test.each(testCases)('calculate numbers', ({ a, b, action, expected }) => {
+    const input = { a, b, action };
+    const result = simpleCalculator(input);
+    expect(result).toBe(expected);
+  });
+
+  test.each(testCasesNull)(
+    'should return null for invalid arguments',
     ({ a, b, action, expected }) => {
-      expect(simpleCalculator({ a, b, action })).toBe(expected);
+      const input = { a, b, action };
+      const result = simpleCalculator(input);
+      expect(result).toBe(expected);
     },
   );
 });

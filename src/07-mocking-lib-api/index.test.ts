@@ -1,12 +1,20 @@
+// Uncomment the code below and write your tests
 import axios from 'axios';
 import { throttledGetDataFromApi } from './index';
 
-const API_ENDPOINT = 'posts';
-const API_BASE = 'https://jsonplaceholder.typicode.com';
-const MOCKED_DATA = { data: 'test' };
+type DataType = {
+  id: number;
+  title: string;
+};
 
-describe('API data retrieval', () => {
+describe('throttledGetDataFromApi', () => {
+  let relativePath: string;
+  let expectedData: DataType;
+
   beforeAll(() => {
+    relativePath = '/posts/1';
+    expectedData = { id: 1, title: 'hello' };
+
     jest.useFakeTimers();
   });
 
@@ -14,43 +22,43 @@ describe('API data retrieval', () => {
     jest.useRealTimers();
   });
 
-  test('checks if instance is created with correct base url', async () => {
-    const instanceCreationMock = jest.spyOn(axios, 'create');
-
-    await throttledGetDataFromApi(API_ENDPOINT);
-
-    expect(instanceCreationMock).toHaveBeenCalledWith({
-      baseURL: API_BASE,
-    });
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
-  test('validates if request is made to the correct url', async () => {
-    const axiosClient = axios.create({
-      baseURL: API_BASE,
-    });
-    const axiosGetMock = jest.spyOn(axiosClient, 'get');
-    const instanceCreationMock = jest.spyOn(axios, 'create');
-    instanceCreationMock.mockReturnValue(axiosClient);
+  test('should create instance with provided base url', async () => {
+    const expectedBaseUrl = 'https://jsonplaceholder.typicode.com';
 
-    await throttledGetDataFromApi(API_ENDPOINT);
+    const spyCreate = jest.spyOn(axios, 'create');
+    jest
+      .spyOn(axios.Axios.prototype, 'get')
+      .mockImplementation(() => Promise.resolve({ data: expectedData }));
 
-    expect(axiosGetMock).not.toHaveBeenCalled();
+    await throttledGetDataFromApi(relativePath);
+    jest.runOnlyPendingTimers();
 
-    jest.runAllTimers();
-
-    expect(axiosGetMock).toHaveBeenCalledWith(API_ENDPOINT);
+    expect(spyCreate).toBeCalledWith({ baseURL: expectedBaseUrl });
   });
 
-  test('ensures response data is returned correctly', async () => {
-    const axiosClient = axios.create({
-      baseURL: API_BASE,
-    });
-    const axiosGetMock = jest.spyOn(axiosClient, 'get');
-    const instanceCreationMock = jest.spyOn(axios, 'create');
-    instanceCreationMock.mockReturnValue(axiosClient);
-    axiosGetMock.mockReturnValue(Promise.resolve(MOCKED_DATA));
+  test('should perform request to correct provided url', async () => {
+    const spyGet = jest
+      .spyOn(axios.Axios.prototype, 'get')
+      .mockImplementation(() => Promise.resolve({ data: expectedData }));
 
-    expect(await throttledGetDataFromApi(API_ENDPOINT)).toBe(MOCKED_DATA.data);
-    expect(axiosGetMock).toHaveBeenCalled();
+    await throttledGetDataFromApi(relativePath);
+    jest.runOnlyPendingTimers();
+
+    expect(spyGet).toBeCalledWith(relativePath);
+  });
+
+  test('should return response data', async () => {
+    jest
+      .spyOn(axios.Axios.prototype, 'get')
+      .mockImplementation(() => Promise.resolve({ data: expectedData }));
+
+    const result = await throttledGetDataFromApi(relativePath);
+    jest.runOnlyPendingTimers();
+
+    expect(result).toEqual(expectedData);
   });
 });

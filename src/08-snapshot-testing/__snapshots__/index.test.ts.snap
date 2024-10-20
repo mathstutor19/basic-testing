@@ -70,3 +70,16 @@ exports[`generateLinkedList should generate linked list from set of values objec
   "value": 1,
 }
 `;
+
+exports[`generateLinkedList should generate linked list from values 2 1`] = `
+{
+  "next": {
+    "next": {
+      "next": null,
+      "value": null,
+    },
+    "value": "pear",
+  },
+  "value": "peach",
+}
+`;
